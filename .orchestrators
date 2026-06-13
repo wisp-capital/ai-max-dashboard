@@ -1,0 +1,6 @@
+# Cross-orchestrator dashboard configuration
+# One orchestrator path per line. Comments start with #.
+
+/Users/alexcstark/repos/cortex-orchestrator
+/Users/alexcstark/repos/wisp-capital-orchestrator
+/Users/alexcstark/repos/ktg-orchestrator
