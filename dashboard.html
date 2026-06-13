@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orchestrator Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #f0f6fc; margin-bottom: 0.5rem; font-size: 1.75rem; }
+        .subtitle { color: #8b949e; margin-bottom: 1.5rem; font-size: 0.875rem; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .stat-value { font-size: 2rem; font-weight: 700; color: #58a6ff; }
+        .stat-label { font-size: 0.75rem; color: #8b949e; text-transform: uppercase; }
+        .stat-value.blocked { color: #f85149; }
+        .stat-value.programs { color: #a371f7; }
+        .orchestrator {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .orch-header {
+            background: #21262d;
+            padding: 1rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .orch-name { font-size: 1.125rem; font-weight: 600; color: #f0f6fc; }
+        .orch-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+        .badge-active { background: #238636; color: #fff; }
+        .badge-blocked { background: #f85149; color: #fff; }
+        .badge-program { background: #a371f7; color: #fff; }
+        .badge-scheduled { background: #d29922; color: #1c1917; }
+        .badge-queued { background: #2f81f7; color: #fff; }
+        .badge-idle { background: #30363d; color: #8b949e; }
+        .initiatives { padding: 0.75rem 1.25rem; }
+        .initiative {
+            border-left: 3px solid #30363d;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            background: #0d1117;
+            border-radius: 0 8px 8px 0;
+        }
+        .initiative.blocked { border-left-color: #f85149; }
+        .init-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.375rem;
+        }
+        .init-name { font-weight: 600; color: #f0f6fc; font-size: 0.9375rem; }
+        .init-meta { font-size: 0.75rem; color: #8b949e; }
+        .init-next {
+            font-size: 0.8125rem;
+            color: #8b949e;
+            margin-top: 0.375rem;
+            padding-top: 0.375rem;
+            border-top: 1px solid #21262d;
+        }
+        .blocked-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f85149;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #8b949e;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #30363d;
+        }
+        th {
+            background: #21262d;
+            color: #8b949e;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        tr:hover td { background: #161b22; }
+        .orch-link { color: #58a6ff; text-decoration: none; }
+        .orch-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Orchestrator Dashboard</h1>
+        <p class="subtitle">10 active initiatives across 3 orchestrators</p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">10</div>
+                <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value programs">1</div>
+                <div class="stat-label">Programs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value blocked">2</div>
+                <div class="stat-label">Blocked</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1</div>
+                <div class="stat-label">Scheduled</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1</div>
+                <div class="stat-label">Queued</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Orchestrator</th>
+                    <th>Active</th>
+                    <th>Programs</th>
+                    <th>Scheduled</th>
+                    <th>Queued</th>
+                    <th>Blocked</th>
+                    <th>Next Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="blocked">
+                    <td><strong>cortex-orchestrator</strong></td>
+                    <td>3</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>🚫 2</td>
+                    <td>Options Trading Design Freeze: Final status review, then archive this INIT and o</td>
+                </tr>
+                <tr>
+                    <td><strong>wisp-capital-orchestrator</strong></td>
+                    <td>7</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>—</td>
+                    <td>Fast backtest engine + reliable data generation: Idle until 2026-06-30 D4 remind</td>
+                </tr>
+                <tr>
+                    <td><strong>ktg-orchestrator</strong></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>—</td>
+                    <td>—</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="orchestrator">
+            <div class="orch-header">
+                <span class="orch-name">cortex-orchestrator</span>
+                <div class="orch-badges">
+<span class="badge badge-active">3 active</span><span class="badge badge-program">1 program</span><span class="badge badge-blocked">2 blocked</span><span class="badge badge-scheduled">1 scheduled</span>                </div>
+            </div>
+            <div class="initiatives">
+                <div class="initiative blocked">
+                    <div class="init-header">
+                        <span class="init-name">Options Trading Design Freeze
+<span class="blocked-indicator" title="Blocked"></span></span>
+                        <span class="init-meta">Verify | M1 target</span>
+                    </div>
+<div class="init-next">Final status review, then archive this INIT and open `options-vendor-broker-viability` for G-002.</div>                </div>
+                <div class="initiative">
+                    <div class="init-header">
+                        <span class="init-name">Polymarket Tiny Live Pilot
+</span>
+                        <span class="init-meta">Build | M3 target</span>
+                    </div>
+<div class="init-next">Run the next Live Envelope action from the verified Windows post-sync checkout, using `EE_WIN_DIR=C:/Users/Administrator/Cortex/polymarket-post-sync-validation-current/ExecutionEdge`. Remote `just pm-...</div>                </div>
+                <div class="initiative blocked">
+                    <div class="init-header">
+                        <span class="init-name">Treasury Multi-Wallet Trading Infrastructure
+<span class="blocked-indicator" title="Blocked"></span></span>
+                        <span class="init-meta">Build | M3 target</span>
+                    </div>
+<div class="init-next">Phases 1-3 merged, 7 wallets funded, Phase 2 + trading proven. Phase 4 enable path clear: **needs 1 human step — user creates builder API keys at polymarket.com Settings -> API Keys** (self-service), ...</div>                </div>
+            </div>
+        </div>
+        <div class="orchestrator">
+            <div class="orch-header">
+                <span class="orch-name">wisp-capital-orchestrator</span>
+                <div class="orch-badges">
+<span class="badge badge-active">7 active</span><span class="badge badge-queued">1 queued</span>                </div>
+            </div>
+            <div class="initiatives">
+                <div class="initiative">
+                    <div class="init-header">
+                        <span class="init-name">Fast backtest engine + reliable data generation
+</span>
+                        <span class="init-meta">Waves 10-11 deployed: warm daemon + shared-index cache default; plain submit 6mo = 2.3s wall / sim 1.5s (legacy baseline 6.0s) | M5</span>
+                    </div>
+<div class="init-next">Idle until 2026-06-30 D4 reminder (incl. stale-cbor cleanup); kotquant#2811 dir-collision fix optional</div>                </div>
+                <div class="initiative">
+                    <div class="init-header">
+                        <span class="init-name">AI operator watchdog, Phase 1 shadow-mode live on epyc
+</span>
+                        <span class="init-meta">Soak (2 trading weeks from 2026-06-11; gate review ≥2026-06-24; see INIT-wesley-operator.md) | M3</span>
+                    </div>
+<div class="init-next">Watch incident/session rate + recommendation quality after wesley#16 and knight#197 auto-deployed. Daily: skim Discord diagnoses + EOD report. CPU fix per infra#260 when window picked.</div>                </div>
+                <div class="initiative">
+                    <div class="init-header">
+                        <span class="init-name">Placebo — biotech ≥20% gap fade-short (see INIT-biotech-gap-fade.md)
+</span>
+                        <span class="init-meta">Build — UN-SHELVED 2026-06-13: premarket-gap≥30% filter makes it all-weather. Open-gap≥20 was froth-conditional (2022 −$3.9K, walk-forward FAIL 57.9%); a regime-segmented feature scan found pm_gap_pct is regime-stable. pm-gap≥30 (a1 feat/placebo 067e1df): EVERY year +ve (2021 +$650 / 2022 +$1,098 / 2023 +$1,472 / 2024 +$3,238 / 2025 +$1,329), Sharpe 2.02, PR 1.38, worst −2.3R, walk-forward PASS 70.3%, 2022/2023 wins broad (5/7, 7/10). BUT low-freq: 103 trades/5yr (2022=7) → fails power gates (p-value, DSR); ~breakeven at 2% locate (−$158), +$3.9K @1%. | M2</span>
+                    </div>
+<div class="init-next">Validate: (1) pm-gap threshold sensitivity 25/30/35% — rebuild sample without breaking all-weather (knife-edge check); (2) real per-name locate (≤2% per user); (3) OOS 2026. Then promote/PR or accept ...</div>                </div>
+                <div class="initiative">
+                    <div class="init-header">
+                        <span class="init-name">Nemesis — small-cap (SmallCapMinus) gap-up fade short via /strat (see INIT-nemesis-smallcap-gap-fade.md)
+</span>
+                        <span class="init-meta">Build/Decision (Phase 5 sweep done 2026-06-13, 7 variants on 2026-01→05, a1 feat/nemesis @ f65d19b. SETTLED: 12% stop is the killer — gets RUN (effectively flat ~12%; shorts stopped at the high on names that fade by close; −4.7R tail = stop blow-through, 0 halts). Stop EXISTENCE not width/shape is the problem: every triggering stop (12% / ATR×3-cap40% / 75%) degrades it; only no-stop net +ve (+$2.4K, win 65%, PR 1.14, Sharpe 0.84 WITH feature filter) — but USER: no-stop isn't deployable. Larger-gap filter did NOT help. Feature mining WORKED (real keeper): recent dollar-vol + recent range(ATRs) lift win 46-53%→70-76% — fade needs ACTIVE liquid rollovers (intraday recent vol, NOT static dollarAvol → why the liquidity filter failed). Committed config = filter + real 12% stop. OPEN: does the cleaner filtered set let a REAL stop survive?) | M1</span>
+                    </div>
+<div class="init-next">Resume: (1) run committed f65d19b (filter + real stop) on 2026-01→05; still DEAD → shelve. (2) else sweep stop width (20/30/50%) on filtered set. (3) try scale-out tactics (ReduceOnPriceAcceleration/V...</div>                </div>
+                <div class="initiative">
+                    <div class="init-header">
+                        <span class="init-name">Helios — frontside parabolic climax-fade short via /strat (see INIT-helios-frontside-parabolic-short.md)
+</span>
+                        <span class="init-meta">Build (phases 1-8 done, IS 2025 +$102K Sharpe 6.4; OOS 2026 FAILED −$40K; stop-width dose-response ruled out execution fix; SMA21 day-2/3 conditioning committed on feat/helios; validation pair killed in queue at shutdown) | M1</span>
+                    </div>
+<div class="init-next">`/strat resume Helios`: rerun IS 2021-25 + untouched 2017-20 validation; profitable both → regime-gate research (a1#159), else shelve DEAD to a1.research. KB write-back pending (sea6e ssh permission-b...</div>                </div>
+                <div class="initiative">
+                    <div class="init-header">
+                        <span class="init-name">Attention Hub — unified "needs attention" stream + lifecycle for agents/humans (see INIT-attention-hub.md)
+</span>
+                        <span class="init-meta">Build (Phase A+B MERGED & live on epyc: NodePort 30895, /mcp serving, Sentry+submit+health-agg in image. RESUME: checkpoints/attention-hub-phase-b-handoff.md) | M2</span>
+                    </div>
+<div class="init-next">**OPEN RISK: write surface unauthenticated** (hub_token not in wesley-secrets → 201 without token). Alex runs the patch+restart `!` cmd in checkpoint step 1 → agent verifies lock + teardown worktree →...</div>                </div>
+                <div class="initiative">
+                    <div class="init-header">
+                        <span class="init-name">Aurora — mid cap+ ATR-gap continuation long, ORB confirmation (see INIT-midcap-gap-continuation.md)
+</span>
+                        <span class="init-meta">Build (/strat phases 1-2 done: Aurora.kt on feat/gap-up-orb-continuation worktrees, build green; parked at Phase 3 datagen gate) | M1</span>
+                    </div>
+<div class="init-next">`/strat resume` Aurora: approve+run trx50 datagen (GapAtrPattern, MidCapPlus, IS 2024-01→2025-12, OOS 2026-01→2026-06), then IS backtest. Also: kotquant PR #2793 (pipeline gates + codename script) awa...</div>                </div>
+            </div>
+        </div>
+        <div class="orchestrator">
+            <div class="orch-header">
+                <span class="orch-name">ktg-orchestrator</span>
+                <div class="orch-badges">
+<span class="badge badge-idle">idle</span>                </div>
+            </div>
+            <div class="initiatives">
+<div class="empty-state">No active initiatives</div>            </div>
+        </div>
+    </div>
+</body>
+</html>

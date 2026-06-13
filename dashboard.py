@@ -214,10 +214,264 @@ def render_json(states: list[OrchestratorState]) -> str:
     return json.dumps([asdict(s) for s in states], indent=2, default=str)
 
 
+def render_html(states: list[OrchestratorState]) -> str:
+    """Render HTML output with inline CSS."""
+    total_active = sum(s.active for s in states)
+    total_programs = sum(s.programs for s in states)
+    total_blocked = sum(s.blocked for s in states)
+    total_scheduled = sum(s.scheduled for s in states)
+    total_queued = sum(s.queued for s in states)
+
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orchestrator Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #f0f6fc; margin-bottom: 0.5rem; font-size: 1.75rem; }
+        .subtitle { color: #8b949e; margin-bottom: 1.5rem; font-size: 0.875rem; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .stat-value { font-size: 2rem; font-weight: 700; color: #58a6ff; }
+        .stat-label { font-size: 0.75rem; color: #8b949e; text-transform: uppercase; }
+        .stat-value.blocked { color: #f85149; }
+        .stat-value.programs { color: #a371f7; }
+        .orchestrator {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .orch-header {
+            background: #21262d;
+            padding: 1rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .orch-name { font-size: 1.125rem; font-weight: 600; color: #f0f6fc; }
+        .orch-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+        .badge-active { background: #238636; color: #fff; }
+        .badge-blocked { background: #f85149; color: #fff; }
+        .badge-program { background: #a371f7; color: #fff; }
+        .badge-scheduled { background: #d29922; color: #1c1917; }
+        .badge-queued { background: #2f81f7; color: #fff; }
+        .badge-idle { background: #30363d; color: #8b949e; }
+        .initiatives { padding: 0.75rem 1.25rem; }
+        .initiative {
+            border-left: 3px solid #30363d;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            background: #0d1117;
+            border-radius: 0 8px 8px 0;
+        }
+        .initiative.blocked { border-left-color: #f85149; }
+        .init-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.375rem;
+        }
+        .init-name { font-weight: 600; color: #f0f6fc; font-size: 0.9375rem; }
+        .init-meta { font-size: 0.75rem; color: #8b949e; }
+        .init-next {
+            font-size: 0.8125rem;
+            color: #8b949e;
+            margin-top: 0.375rem;
+            padding-top: 0.375rem;
+            border-top: 1px solid #21262d;
+        }
+        .blocked-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f85149;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #8b949e;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #30363d;
+        }
+        th {
+            background: #21262d;
+            color: #8b949e;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        tr:hover td { background: #161b22; }
+        .orch-link { color: #58a6ff; text-decoration: none; }
+        .orch-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Orchestrator Dashboard</h1>
+        <p class="subtitle">""" + f"{total_active} active initiatives across {len(states)} orchestrators" + """</p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">""" + str(total_active) + """</div>
+                <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value programs">""" + str(total_programs) + """</div>
+                <div class="stat-label">Programs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value blocked">""" + str(total_blocked) + """</div>
+                <div class="stat-label">Blocked</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">""" + str(total_scheduled) + """</div>
+                <div class="stat-label">Scheduled</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">""" + str(total_queued) + """</div>
+                <div class="stat-label">Queued</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Orchestrator</th>
+                    <th>Active</th>
+                    <th>Programs</th>
+                    <th>Scheduled</th>
+                    <th>Queued</th>
+                    <th>Blocked</th>
+                    <th>Next Action</th>
+                </tr>
+            </thead>
+            <tbody>
+"""
+
+    for s in states:
+        blocked_class = ' class="blocked"' if s.blocked > 0 else ''
+        next_act = s.next_action[:80] if s.next_action else "—"
+        html += f"""                <tr{blocked_class}>
+                    <td><strong>{s.name}</strong></td>
+                    <td>{s.active}</td>
+                    <td>{s.programs}</td>
+                    <td>{s.scheduled}</td>
+                    <td>{s.queued}</td>
+                    <td>{'🚫 ' + str(s.blocked) if s.blocked else '—'}</td>
+                    <td>{next_act}</td>
+                </tr>
+"""
+
+    html += """            </tbody>
+        </table>
+"""
+
+    for s in states:
+        html += f"""        <div class="orchestrator">
+            <div class="orch-header">
+                <span class="orch-name">{s.name}</span>
+                <div class="orch-badges">
+"""
+        if s.active:
+            html += f'<span class="badge badge-active">{s.active} active</span>'
+        if s.programs:
+            html += f'<span class="badge badge-program">{s.programs} program</span>'
+        if s.blocked:
+            html += f'<span class="badge badge-blocked">{s.blocked} blocked</span>'
+        if s.scheduled:
+            html += f'<span class="badge badge-scheduled">{s.scheduled} scheduled</span>'
+        if s.queued:
+            html += f'<span class="badge badge-queued">{s.queued} queued</span>'
+        if not any([s.active, s.programs, s.blocked, s.scheduled, s.queued]):
+            html += '<span class="badge badge-idle">idle</span>'
+
+        html += """                </div>
+            </div>
+            <div class="initiatives">
+"""
+        if not s.initiatives:
+            html += '<div class="empty-state">No active initiatives</div>'
+        else:
+            for i in s.initiatives:
+                blocked_class = ' blocked' if is_blocked(i.blocked) else ''
+                html += f"""                <div class="initiative{blocked_class}">
+                    <div class="init-header">
+                        <span class="init-name">{i.name}
+"""
+                if is_blocked(i.blocked):
+                    html += '<span class="blocked-indicator" title="Blocked"></span>'
+                html += f"""</span>
+                        <span class="init-meta">{i.phase} | {i.maturity}</span>
+                    </div>
+"""
+                if i.next_action:
+                    truncated = i.next_action[:200]
+                    if len(i.next_action) > 200:
+                        truncated += "..."
+                    html += f'<div class="init-next">{truncated}</div>'
+                html += """                </div>
+"""
+
+        html += """            </div>
+        </div>
+"""
+
+    html += """    </div>
+</body>
+</html>"""
+
+    return html
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Cross-orchestrator status dashboard")
     parser.add_argument("--output", "-o", type=Path, help="Write markdown output to file")
     parser.add_argument("--json", action="store_true", help="Output JSON instead of markdown")
+    parser.add_argument("--html", action="store_true", help="Output HTML instead of markdown")
     parser.add_argument("--config", "-c", type=Path, help="Path to .orchestrators config file")
     args = parser.parse_args(argv)
 
@@ -235,6 +489,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.json:
         output = render_json(states)
+    elif args.html:
+        output = render_html(states)
     else:
         output = render_markdown(states)
 
